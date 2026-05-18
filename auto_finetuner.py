@@ -69,6 +69,8 @@ class AutoFinetuner:
             
         if self.prompt_template:
             print("[*] Formatting dataset using provided prompt template...")
+            original_columns = self.dataset.column_names
+            
             def apply_template(example):
                 try:
                     # Format the text and store it in dataset_text_field
@@ -76,7 +78,13 @@ class AutoFinetuner:
                 except KeyError as e:
                     pass # Silently skip formatting if some columns are missing for a specific row
                 return example
+                
             self.dataset = self.dataset.map(apply_template)
+            
+            # Remove all original columns (except the text field) to prevent Trainer argument conflicts
+            cols_to_remove = [col for col in original_columns if col != self.dataset_text_field]
+            if cols_to_remove:
+                self.dataset = self.dataset.remove_columns(cols_to_remove)
             
         print(f"[*] Loading tokenizer for: {self.model_name}")
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)

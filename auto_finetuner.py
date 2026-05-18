@@ -23,7 +23,8 @@ class AutoFinetuner:
         save_path: str,
         quantization_bits: int = 4,
         dataset_text_field: str = "text",
-        prompt_template: str = None
+        prompt_template: str = None,
+        max_seq_length: int = 512
     ):
         """
         Initialize the Finetuner.
@@ -34,6 +35,7 @@ class AutoFinetuner:
         :param quantization_bits: Number of bits for quantization (4, 8, or None for no quantization)
         :param dataset_text_field: The column name in the dataset containing the text to train on
         :param prompt_template: Optional format string for prompt (e.g. "Instruction: {instruction}\nResponse: {response}")
+        :param max_seq_length: Maximum sequence length for training to prevent OOM errors
         """
         self.model_name = model_name
         self.dataset_name = dataset_name
@@ -41,6 +43,7 @@ class AutoFinetuner:
         self.quantization_bits = quantization_bits
         self.dataset_text_field = dataset_text_field
         self.prompt_template = prompt_template
+        self.max_seq_length = max_seq_length
         
         self.model = None
         self.tokenizer = None
@@ -148,6 +151,7 @@ class AutoFinetuner:
             peft_config=peft_config,
             processing_class=self.tokenizer,
             args=training_arguments,
+            max_seq_length=self.max_seq_length,
         )
 
         print("[*] Starting training... (This might take a while)")
@@ -178,7 +182,8 @@ def finetune_quick(
     save_path: str, 
     quantization_bits: int = 4,
     epochs: int = 1,
-    prompt_template: str = None
+    prompt_template: str = None,
+    max_seq_length: int = 512
 ):
     """
     A single function call to fine-tune a model and save it.
@@ -189,7 +194,8 @@ def finetune_quick(
         dataset_name=dataset,
         save_path=save_path,
         quantization_bits=quantization_bits,
-        prompt_template=prompt_template
+        prompt_template=prompt_template,
+        max_seq_length=max_seq_length
     )
     finetuner.train(epochs=epochs)
     print("=== Pipeline Finished successfully ===")

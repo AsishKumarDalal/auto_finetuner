@@ -1,65 +1,91 @@
-# Auto Finetuner 🚀
+<div align="center">
+  <!-- NOTE: Logo placeholder. You can upload your own cool logo here later! -->
+  <h1>⚙️ AutoFinetuner</h1>
 
-The easiest, zero-headache wrapper for fine-tuning Large Language Models (LLMs) using QLoRA.
+  **Enterprise-Grade, Zero-Boilerplate LLM Fine-Tuning**
 
-`AutoFinetuner` abstracts away all the boilerplate of `transformers`, `peft`, `trl`, and `bitsandbytes`. It allows you to download, quantize, and fine-tune massive models using a single line of code, making it perfect for Google Colab, Jupyter Notebooks, or quick prototyping.
+  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+  [![HuggingFace](https://img.shields.io/badge/🤗-HuggingFace-yellow.svg)](https://huggingface.co/)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-## Features
-- **Ultimate One-Liner**: Fine-tune a model with a single function call.
-- **Auto-Quantization**: Easily load 7B+ parameter models on consumer GPUs using 4-bit or 8-bit precision.
-- **Dynamic Prompt Formatting**: Automatically map dataset columns (like `instruction`, `input`, `output`) into a single text prompt using a simple string template.
-- **Under the Hood**: Uses industry standards (LoRA, `SFTTrainer`, paged AdamW) for optimized memory efficiency.
+  *Train massive language models on consumer hardware in a single line of code.*
+</div>
 
 ---
 
-## Quickstart (The One-Liner)
+## 📖 Overview
 
-The absolute simplest way to train and save a model.
+**AutoFinetuner** is a robust, high-level Python library designed to streamline the complexities of fine-tuning Large Language Models (LLMs). By orchestrating the latest advancements in quantization (QLoRA) and parameter-efficient fine-tuning (PEFT), AutoFinetuner abstracts away the intricate boilerplate of `transformers`, `trl`, and `bitsandbytes`.
+
+Whether you are prototyping in a Jupyter Notebook or deploying enterprise models, AutoFinetuner ensures optimized memory efficiency and maximum throughput.
+
+## ✨ Key Features
+
+- **Zero-Boilerplate Execution:** Initiate full Supervised Fine-Tuning (SFT) with a single function call.
+- **Hardware Optimized:** Native support for 4-bit (`nf4`) and 8-bit quantization, enabling 7B+ parameter model training on single consumer GPUs (e.g., NVIDIA RTX 3090/4090, Colab T4).
+- **Dynamic Prompt Engineering:** Map complex datasets (instruction, input, output columns) directly into training tensors using intuitive string templates.
+- **Industry Standards:** Built on top of the proven HuggingFace ecosystem using `PagedAdamW` optimizers and cosine learning rate schedulers.
+
+## 🚀 Installation
+
+Ensure you have a CUDA-compatible environment, then install the required dependencies:
+
+```bash
+pip install accelerate peft bitsandbytes transformers trl datasets torch
+```
+
+## 💻 Quickstart (The One-Liner)
+
+For rapid prototyping, use the `finetune_quick` API. This handles downloading, tokenization, quantization, LoRA configuration, training, and adapter saving automatically.
 
 ```python
 from auto_finetuner import finetune_quick
 
-# This will download the model, quantize it, train it, and save it!
-my_model = finetune_quick(
+model = finetune_quick(
     model="NousResearch/Llama-2-7b-chat-hf",
     dataset="mlabonne/guanaco-llama2-1k",
-    save_path="./my-custom-llama2",
-    quantization_bits=4, # Use 4-bit, 8-bit, or None
+    save_path="./my-custom-model",
+    quantization_bits=4, 
     prompt_template="<s>[INST] {instruction} \n{input} [/INST] {output} </s>"
 )
 
-# Test your newly fine-tuned model!
-response = my_model.generate("What is the meaning of life?")
+# Inference is immediately available
+response = model.generate("Explain quantum physics simply.")
 print(response)
 ```
 
----
+## ⚙️ Advanced Configuration (Object-Oriented)
 
-## Object-Oriented Approach
-
-If you need more control, you can use the `AutoFinetuner` class directly.
+For production environments requiring fine-grained control over the training loop, utilize the `AutoFinetuner` class.
 
 ```python
 from auto_finetuner import AutoFinetuner
 
-# 1. Initialize the finetuner
+# 1. Initialize the architecture
 finetuner = AutoFinetuner(
     model_name="NousResearch/Llama-2-7b-chat-hf",
     dataset_name="mlabonne/guanaco-llama2-1k",
-    save_path="./my-custom-llama2",
+    save_path="./my-custom-model",
     quantization_bits=4, 
     prompt_template="<s>[INST] {instruction} [/INST] {output} </s>"
 )
 
-# 2. Start the training process!
-finetuner.train(epochs=1, batch_size=4, learning_rate=2e-4)
+# 2. Execute Training
+finetuner.train(
+    epochs=3, 
+    batch_size=4, 
+    learning_rate=2e-4
+)
 
-# 3. Generate text
-print(finetuner.generate("Explain quantum physics to a child."))
+# 3. Generate Inference
+print(finetuner.generate("What is the speed of light?"))
 ```
 
-## Dependencies
-This library relies on standard HuggingFace tools. Ensure you have them installed:
-```bash
-pip install accelerate peft bitsandbytes transformers trl datasets torch
-```
+## 🤝 Contributing
+
+We welcome contributions from the open-source community! We are looking to add features for DPO (Direct Preference Optimization) and multi-GPU training. Feel free to open a PR!
+
+## 📄 License
+
+This project is licensed under the MIT License.

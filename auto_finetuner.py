@@ -47,12 +47,13 @@ class AutoFinetuner:
         self.dataset = None
 
     def _setup_quantization(self):
+        compute_dtype = torch.bfloat16 if (torch.cuda.is_available() and torch.cuda.is_bf16_supported()) else torch.float16
         if self.quantization_bits == 4:
-            print("Configuring 4-bit quantization...")
+            print(f"Configuring 4-bit quantization with {compute_dtype}...")
             return BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_compute_dtype=compute_dtype,
                 bnb_4bit_use_double_quant=False,
             )
         elif self.quantization_bits == 8:
@@ -93,12 +94,13 @@ class AutoFinetuner:
         
         print(f"[*] Loading model: {self.model_name}")
         bnb_config = self._setup_quantization()
+        compute_dtype = torch.bfloat16 if (torch.cuda.is_available() and torch.cuda.is_bf16_supported()) else torch.float16
         
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             quantization_config=bnb_config,
             device_map="auto",
-            torch_dtype=torch.float16,
+            torch_dtype=compute_dtype,
         )
         self.model.config.use_cache = False
         self.model.config.pretraining_tp = 1
@@ -118,6 +120,8 @@ class AutoFinetuner:
             task_type="CAUSAL_LM",
         )
 
+        use_bf16 = torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+        
         training_arguments = TrainingArguments(
             output_dir="./training_checkpoints",
             num_train_epochs=epochs,
@@ -128,8 +132,8 @@ class AutoFinetuner:
             logging_steps=25,
             learning_rate=learning_rate,
             weight_decay=0.001,
-            fp16=True,
-            bf16=False,
+            fp16=not use_bf16,
+            bf16=use_bf16,
             max_grad_norm=0.3,
             max_steps=-1,
             warmup_steps=10,

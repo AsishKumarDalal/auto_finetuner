@@ -71,7 +71,7 @@ AutoFinetuner is built to train large models on consumer GPUs (e.g., RTX 3090/40
 Ensure you have a CUDA-compatible environment, then install the required dependencies:
 
 ```bash
-pip install accelerate peft bitsandbytes transformers trl datasets torch
+pip install -r requirements.txt
 ```
 
 For rapid prototyping, use the `finetune_quick` API:

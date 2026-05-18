@@ -97,7 +97,8 @@ class AutoFinetuner:
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             quantization_config=bnb_config,
-            device_map="auto"
+            device_map="auto",
+            torch_dtype=torch.float16,
         )
         self.model.config.use_cache = False
         self.model.config.pretraining_tp = 1

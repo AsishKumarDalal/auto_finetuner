@@ -124,7 +124,6 @@ class AutoFinetuner:
             max_grad_norm=0.3,
             max_steps=-1,
             warmup_ratio=0.03,
-            group_by_length=True,
             lr_scheduler_type="cosine",
             report_to="none" # Set to "tensorboard" or "wandb" if you want tracking
         )

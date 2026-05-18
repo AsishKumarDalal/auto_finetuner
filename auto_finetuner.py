@@ -10,7 +10,7 @@ from transformers import (
     logging,
 )
 from peft import LoraConfig
-from trl import SFTTrainer, SFTConfig
+from trl import SFTTrainer
 
 class AutoFinetuner:
     """
@@ -109,7 +109,7 @@ class AutoFinetuner:
             task_type="CAUSAL_LM",
         )
 
-        training_arguments = SFTConfig(
+        training_arguments = TrainingArguments(
             output_dir="./training_checkpoints",
             num_train_epochs=epochs,
             per_device_train_batch_size=batch_size,
@@ -125,10 +125,7 @@ class AutoFinetuner:
             max_steps=-1,
             warmup_steps=10,
             lr_scheduler_type="cosine",
-            report_to="none", # Set to "tensorboard" or "wandb" if you want tracking
-            dataset_text_field=self.dataset_text_field,
-            max_seq_length=1024,
-            packing=False,
+            report_to="none" # Set to "tensorboard" or "wandb" if you want tracking
         )
 
         print("[*] Initializing SFTTrainer...")
@@ -136,7 +133,7 @@ class AutoFinetuner:
             model=self.model,
             train_dataset=self.dataset,
             peft_config=peft_config,
-            tokenizer=self.tokenizer,
+            processing_class=self.tokenizer,
             args=training_arguments,
         )
 
